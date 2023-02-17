@@ -9,5 +9,4 @@ public class ArtemisPushNotificationRelayApplication {
     public static void main(String[] args) {
         SpringApplication.run(ArtemisPushNotificationRelayApplication.class, args);
     }
-
 }
