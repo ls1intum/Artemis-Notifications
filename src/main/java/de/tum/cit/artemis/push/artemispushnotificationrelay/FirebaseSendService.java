@@ -22,24 +22,21 @@ import java.util.Optional;
 @Service
 public class FirebaseSendService implements SendService<List<NotificationRequest>> {
 
-    @Value("${artemis.push-notification.firebase.path:}")
-    private String credentialsPath;
-
     private Optional<FirebaseApp> firebaseApp = Optional.empty();
 
     private final Logger log = LoggerFactory.getLogger(FirebaseSendService.class);
 
     public FirebaseSendService() {
-        if (credentialsPath != null && !credentialsPath.isEmpty()) {
-            try {
-                final var credentials = GoogleCredentials.fromStream(Files.newInputStream(Path.of(credentialsPath)));
+        try {
+            FirebaseOptions options = FirebaseOptions
+                    .builder()
+                    // Get credentials from GOOGLE_APPLICATION_CREDENTIALS env var.
+                    .setCredentials(GoogleCredentials.getApplicationDefault())
+                    .build();
 
-                final FirebaseOptions options = FirebaseOptions.builder().setCredentials(credentials).build();
-
-                firebaseApp = Optional.of(FirebaseApp.initializeApp(options));
-            } catch (IOException e) {
-                log.error("Exception while loading Firebase credentials", e);
-            }
+            firebaseApp = Optional.of(FirebaseApp.initializeApp(options));
+        } catch (IOException e) {
+            log.error("Exception while loading Firebase credentials", e);
         }
     }
 
