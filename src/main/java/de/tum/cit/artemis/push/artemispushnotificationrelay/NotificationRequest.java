@@ -6,7 +6,7 @@ public class NotificationRequest {
 
     private final String token;
 
-    public NotificationRequest(String initializationVector, String payloadCiphertext, String token) {
+    public NotificationRequest(String initializationVector, String payloadCipherText, String token) {
         this.initializationVector = initializationVector;
         this.payloadCipherText = payloadCiphertext;
         this.token = token;
