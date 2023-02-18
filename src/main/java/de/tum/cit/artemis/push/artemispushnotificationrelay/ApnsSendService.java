@@ -14,11 +14,26 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
+import java.util.Base64;
+
 @Service
 public class ApnsSendService implements SendService<NotificationRequest> {
 
-    @Value("${APNS_TOKEN:#{null}}")
-    private String apnsToken;
+    @Value("${APNS_KEY_PATH:#{null}}")
+    private String apnsKeyPath;
 
     @Value("${APNS_URL:#{null}}")
     private String apnsUrl;
@@ -26,14 +41,14 @@ public class ApnsSendService implements SendService<NotificationRequest> {
     private final Logger log = LoggerFactory.getLogger(ApnsSendService.class);
 
     public ApnsSendService() {
-        if (apnsUrl == null || apnsUrl.isEmpty() || apnsToken == null || apnsToken.isEmpty()) {
+        if (apnsUrl == null || apnsUrl.isEmpty() || apnsKeyPath == null || apnsKeyPath.isEmpty()) {
             log.error("Could not load APNS config");
         }
     }
 
     @Override
     public ResponseEntity<Void> send(NotificationRequest request) {
-        if (apnsToken != null && !apnsToken.isEmpty() && apnsUrl != null && !apnsUrl.isEmpty()) {
+        if (apnsKeyPath != null && !apnsKeyPath.isEmpty() && apnsUrl != null && !apnsUrl.isEmpty()) {
             RestTemplate restTemplate = new RestTemplate();
 
             return sendApnsRequest(restTemplate, request);
@@ -46,7 +61,19 @@ public class ApnsSendService implements SendService<NotificationRequest> {
         try {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("path", "/3/device/" + request.getToken());
-            httpHeaders.setBearerAuth(apnsToken);
+
+            Key key = getPrivateKey(apnsKeyPath, "ES256");
+            String numberOfSecondsSinceEpoch = String.valueOf(Instant.now().getEpochSecond());
+
+            String jwt = Jwts
+                    .builder()
+                    .setHeaderParam("kid", "RHP5G7CZH8")
+                    .claim("iss", "2J3C6P6X3N")
+                    .claim("iat", numberOfSecondsSinceEpoch)
+                    .signWith(key, SignatureAlgorithm.ES256)
+                    .compact();
+
+            httpHeaders.setBearerAuth(jwt);
             httpHeaders.add("apns-push-type", "alert");
 
             String body = getApnsBody(request);
@@ -55,9 +82,25 @@ public class ApnsSendService implements SendService<NotificationRequest> {
 
             restTemplate.postForObject(apnsUrl, httpEntity, String.class);
             return ResponseEntity.ok().build();
-        } catch (RestClientException e) {
+        } catch (RestClientException | IOException e) {
             log.error("Could not send APNS notifications", e);
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
+        }
+    }
+
+    private PrivateKey getPrivateKey(String filename, String algorithm) throws IOException {
+        String content = new String(Files.readAllBytes(Paths.get(filename)), "utf-8");
+        try {
+            String privateKey = content.replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replaceAll("\\s+", "");
+
+            KeyFactory kf = KeyFactory.getInstance(algorithm);
+            return kf.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Java did not support the algorithm:" + algorithm, e);
+        } catch (InvalidKeySpecException e) {
+            throw new RuntimeException("Invalid key format");
         }
     }
 

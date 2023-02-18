@@ -9,8 +9,10 @@ How to run:
 `docker run -v path_to_google_credentials_json:/firebase.json -e GOOGLE_APPLICATION_CREDENTIALS="/firebase.json" -p 17333:8080 --name artemis_notification_relay notification_relay`
 
 To run the services as an APNS relay the following Environment Variables are required:
-- APNS_TOKEN: String - The APNs token as described [here](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_token-based_connection_to_apns)
+- APNS_KEY_PATH: String - Path to the APNs key as described [here](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_token-based_connection_to_apns)
 - APNS_URL: String - The APNS Url, e.g.: https://api.sandbox.push.apple.com/ or https://api.push.apple.com/
+Furthermore the <APNS_Key>.p8 needs to be mounted into the Docker under the above specified path.
+
 
 To run the services as a Firebase relay the following Environment Variable is required:
 - GOOGLE_APPLICATION_CREDENTIALS: String - Path to the firebase.json
