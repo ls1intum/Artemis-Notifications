@@ -7,10 +7,12 @@ Allows secure and private push notifications from [Artemis](https://github.com/l
 
 How to run:
 `docker run -v path_to_google_credentials_json:/firebase.json -e GOOGLE_APPLICATION_CREDENTIALS="/firebase.json" -p 17333:8080 --name artemis_notification_relay notification_relay`
+`docker run -v <path_to_apns_certificate>:/artemis-apns.p12 -e APNS_CERTIFICATE_PATH="/artemis-apns.p12" -e APNS_CERTIFICATE_PWD="<pwd_for_certificate>" --name artemis_notification_relay -p 17333:8080 notification_relay`
 
 To run the services as an APNS relay the following Environment Variables are required:
-- APNS_KEY_PATH: String - Path to the APNs key as described [here](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_token-based_connection_to_apns)
-- APNS_URL: String - The APNS Url, e.g.: https://api.sandbox.push.apple.com/ or https://api.push.apple.com/
+- APNS_CERTIFICATE_PATH: String - Path to the APNs certificate .p12 file as described [here](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_certificate-based_connection_to_apns)
+- APNS_CERTIFICATE_PWD: String - The APNS certificate password
+- APNS_PROD_ENVIRONMENT: Bool - True if it should use the Production APNS Server (Default false) 
 Furthermore the <APNS_Key>.p8 needs to be mounted into the Docker under the above specified path.
 
 

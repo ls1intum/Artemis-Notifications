@@ -20,22 +20,25 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class ApnsSendService implements SendService<NotificationRequest> {
 
-//    @Value("APNS_CERTIFICATE_PATH")
-    private String apnsCertificatePath = "artemis-apns.p12";
-//    @Value("APNS_CERTIFICATE_PWD")
-    private String apnsCertificatePwd = "MbqErip6bqt5lSzThtl5DCs";
+    @Value("APNS_CERTIFICATE_PATH")
+    private String apnsCertificatePath;
+    @Value("APNS_CERTIFICATE_PWD")
+    private String apnsCertificatePwd;
+
+    @Value("APNS_PROD_ENVIRONMENT:false")
+    private Boolean apnsProdEnvironment;
 
     private final Logger log = LoggerFactory.getLogger(ApnsSendService.class);
     private ApnsClient apnsClient;
 
     public ApnsSendService() {
-        if (apnsCertificatePwd == null || apnsCertificatePath == null) {
+        if (apnsCertificatePwd == null || apnsCertificatePath == null || apnsProdEnvironment == null) {
             log.error("Could not init APNS service. Certificate information missing.");
             return;
         }
         try {
             apnsClient = new ApnsClientBuilder()
-                    .setApnsServer(ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
+                    .setApnsServer(apnsProdEnvironment ? ApnsClientBuilder.PRODUCTION_APNS_HOST : ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
                     .setClientCredentials(new File(apnsCertificatePath), apnsCertificatePwd)
                     .build();
         } catch (IOException e) {
@@ -69,7 +72,7 @@ public class ApnsSendService implements SendService<NotificationRequest> {
             final PushNotificationResponse<SimpleApnsPushNotification> pushNotificationResponse =
                     responsePushNotificationFuture.get();
             if (pushNotificationResponse.isAccepted()) {
-                log.info("Send notification to " + request.getToken()); // TODO: change to DEBUG
+                log.debug("Send notification to " + request.getToken());
                 return ResponseEntity.ok().build();
             } else {
                 log.error("Notification rejected by the APNs gateway: " +
