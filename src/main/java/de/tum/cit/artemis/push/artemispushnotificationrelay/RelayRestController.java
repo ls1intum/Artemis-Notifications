@@ -1,5 +1,6 @@
 package de.tum.cit.artemis.push.artemispushnotificationrelay;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,13 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/push_notification")
 public class RelayRestController {
 
-    private final FirebaseSendService firebaseSendService;
-    private final ApnsSendService apnsSendService;
-
-    public RelayRestController(FirebaseSendService firebaseSendService, ApnsSendService apnsSendService) {
-        this.firebaseSendService = firebaseSendService;
-        this.apnsSendService = apnsSendService;
-    }
+    private FirebaseSendService firebaseSendService;
+    @Autowired
+    private ApnsSendService apnsSendService;
 
     @PostMapping("send_firebase")
     public ResponseEntity send(@RequestBody FirebaseSendPushNotificationsRequest notificationRequests) {
