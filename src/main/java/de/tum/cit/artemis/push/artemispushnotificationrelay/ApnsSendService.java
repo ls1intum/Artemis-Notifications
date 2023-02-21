@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -20,18 +22,22 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class ApnsSendService implements SendService<NotificationRequest> {
 
-    @Value("APNS_CERTIFICATE_PATH")
+    @Value("${APNS_CERTIFICATE_PATH: #{null}}")
     private String apnsCertificatePath;
-    @Value("APNS_CERTIFICATE_PWD")
+    @Value("${APNS_CERTIFICATE_PWD: #{null}}")
     private String apnsCertificatePwd;
 
-    @Value("APNS_PROD_ENVIRONMENT:false")
-    private Boolean apnsProdEnvironment;
+    @Value("${APNS_PROD_ENVIRONMENT: #{false}}")
+    private Boolean apnsProdEnvironment = false;
 
     private final Logger log = LoggerFactory.getLogger(ApnsSendService.class);
     private ApnsClient apnsClient;
 
-    public ApnsSendService() {
+    @PostConstruct
+    public void initialize() {
+        log.info("apnsCertificatePwd: " + apnsCertificatePwd);
+        log.info("apnsCertificatePath: " + apnsCertificatePath);
+        log.info("apnsProdEnvironment: " + apnsProdEnvironment);
         if (apnsCertificatePwd == null || apnsCertificatePath == null || apnsProdEnvironment == null) {
             log.error("Could not init APNS service. Certificate information missing.");
             return;
@@ -41,6 +47,7 @@ public class ApnsSendService implements SendService<NotificationRequest> {
                     .setApnsServer(apnsProdEnvironment ? ApnsClientBuilder.PRODUCTION_APNS_HOST : ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
                     .setClientCredentials(new File(apnsCertificatePath), apnsCertificatePwd)
                     .build();
+            log.info("Started APNS client successfully!");
         } catch (IOException e) {
             log.error("Could not init APNS service", e);
         }
