@@ -13,3 +13,4 @@ services:
     volumes:
       - <path_to_apns_certificate>:/key/artemis-apns.p12
       - <path_to_google_credentials_json>:/firebase.json
+    restart: on-failure
