@@ -8,6 +8,7 @@ services:
     environment:
       - APNS_CERTIFICATE_PATH=/key/artemis-apns.p12
       - APNS_CERTIFICATE_PWD=<pwd_for_certificate>
+      - APNS_PROD_ENVIRONMENT=false
       - GOOGLE_APPLICATION_CREDENTIALS=/firebase.json
     volumes:
       - <path_to_apns_certificate>:/key/artemis-apns.p12
