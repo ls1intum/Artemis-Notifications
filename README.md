@@ -7,7 +7,8 @@ Allows secure and private push notifications from [Artemis](https://github.com/l
 
 ### How to run:
 1. Replace placeholder values `<...>` in Docker-Compose file
-2. Run `docker-compose up`
+2. Adjust port if necessary
+3. Run `docker-compose up`
 
 ### Further Information on Dockerfile
 
