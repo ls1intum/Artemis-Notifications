@@ -1,8 +1,8 @@
 version: '3'
 services:
-  notification_relay:
-    image: notification_relay
-    container_name: artemis_notification_relay
+  hermes:
+    image: hermes
+    container_name: hermes
     ports:
       - "17333:8080"
     environment:
