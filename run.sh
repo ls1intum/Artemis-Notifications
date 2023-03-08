@@ -1,4 +1,4 @@
 #!/bin/bash
 
-gradlew bootJar
+gradlew hermes:bootJar
 docker build -t hermes .
