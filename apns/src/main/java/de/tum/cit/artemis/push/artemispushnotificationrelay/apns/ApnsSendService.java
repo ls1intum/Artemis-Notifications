@@ -81,7 +81,7 @@ public class ApnsSendService implements SendService<NotificationRequest> {
             final PushNotificationResponse<SimpleApnsPushNotification> pushNotificationResponse =
                     responsePushNotificationFuture.get();
             if (pushNotificationResponse.isAccepted()) {
-                log.debug("Send notification to " + request.getToken());
+                log.info("Send notification to " + request.getToken());
                 return ResponseEntity.ok().build();
             } else {
                 log.error("Notification rejected by the APNs gateway: " +
