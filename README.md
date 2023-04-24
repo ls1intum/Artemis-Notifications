@@ -5,6 +5,8 @@
 Notification Relay for Artemis Push Notifications.  
 Allows secure and private push notifications from [Artemis](https://github.com/ls1intum/Artemis) to the mobile apps for [iOS](https://github.com/ls1intum/artemis-ios) and [Android](https://github.com/ls1intum/artemis-android).
 
+![](hermes-system-decomposition.png)
+
 ### How to run:
 1. Replace placeholder values `<...>` in Docker-Compose file
 2. Adjust port if necessary
