@@ -69,7 +69,7 @@ public class ApnsSendService implements SendService<NotificationRequest> {
                 .build();
 
         SimpleApnsPushNotification notification = new SimpleApnsPushNotification(request.getToken(),
-                "de.tum.cit.artemis",
+                "de.tum.cit.ase.artemis",
                 payload,
                 Instant.now().plus(Duration.ofDays(7)),
                 DeliveryPriority.getFromCode(5),

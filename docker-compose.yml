@@ -1,7 +1,7 @@
 version: '3'
 services:
   hermes:
-    image: hermes # TODO: Replace with the image tag from github
+    image: ghcr.io/ls1intum/hermes:latest
     container_name: hermes
     ports:
       - "17333:8080"
