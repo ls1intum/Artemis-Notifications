@@ -60,7 +60,7 @@ public class FirebaseSendService implements SendService<List<NotificationRequest
                     .toList();
 
             try {
-                FirebaseMessaging.getInstance(firebaseApp.get()).sendAll(batch);
+                FirebaseMessaging.getInstance(firebaseApp.get()).sendEach(batch);
             } catch (FirebaseMessagingException e) {
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
             }
