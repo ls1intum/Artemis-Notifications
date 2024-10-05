@@ -1,4 +1,4 @@
-package de.tum.cit.artemis.push.artemispushnotificationrelay;
+package de.tum.cit.artemis.push;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

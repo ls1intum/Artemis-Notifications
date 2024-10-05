@@ -4,7 +4,7 @@ plugins {
     id 'io.spring.dependency-management'
 }
 
-group = 'de.tum.cit.aet.artemis.push.artemispushnotificationrelay'
+group = 'de.tum.cit.aet.artemis.push'
 version = '1.0.0'
 
 java {

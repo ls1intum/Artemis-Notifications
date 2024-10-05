@@ -1,4 +1,4 @@
-package de.tum.cit.artemis.push.artemispushnotificationrelay.common;
+package de.tum.cit.artemis.push.common;
 
 import org.springframework.http.ResponseEntity;
 

@@ -1,4 +1,4 @@
-package de.tum.cit.artemis.push.artemispushnotificationrelay.firebase;
+package de.tum.cit.artemis.push.firebase;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -6,8 +6,8 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import de.tum.cit.artemis.push.artemispushnotificationrelay.common.NotificationRequest;
-import de.tum.cit.artemis.push.artemispushnotificationrelay.common.SendService;
+import de.tum.cit.artemis.push.common.NotificationRequest;
+import de.tum.cit.artemis.push.common.SendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

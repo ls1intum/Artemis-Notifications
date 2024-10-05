@@ -1,11 +1,11 @@
-package de.tum.cit.artemis.push.artemispushnotificationrelay.apns;
+package de.tum.cit.artemis.push.apns;
 
 import com.eatthepath.pushy.apns.*;
 import com.eatthepath.pushy.apns.util.SimpleApnsPayloadBuilder;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
 import com.eatthepath.pushy.apns.util.concurrent.PushNotificationFuture;
-import de.tum.cit.artemis.push.artemispushnotificationrelay.common.NotificationRequest;
-import de.tum.cit.artemis.push.artemispushnotificationrelay.common.SendService;
+import de.tum.cit.artemis.push.common.NotificationRequest;
+import de.tum.cit.artemis.push.common.SendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,9 +86,7 @@ public class ApnsSendService implements SendService<NotificationRequest> {
             } else {
                 log.error("Notification rejected by the APNs gateway: {}", pushNotificationResponse.getRejectionReason());
 
-                pushNotificationResponse.getTokenInvalidationTimestamp().ifPresent(timestamp -> {
-                    log.error("\t…and the token is invalid as of {}", timestamp);
-                });
+                pushNotificationResponse.getTokenInvalidationTimestamp().ifPresent(timestamp -> log.error("\t... and the token is invalid as of {}", timestamp));
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
             }
         } catch (ExecutionException | InterruptedException e) {
