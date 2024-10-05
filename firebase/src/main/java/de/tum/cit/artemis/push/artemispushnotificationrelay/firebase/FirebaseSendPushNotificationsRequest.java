@@ -4,7 +4,5 @@ import de.tum.cit.artemis.push.artemispushnotificationrelay.common.NotificationR
 
 import java.util.List;
 
-public record FirebaseSendPushNotificationsRequest(
-    List<NotificationRequest> notificationRequest
-) {
+public record FirebaseSendPushNotificationsRequest(List<NotificationRequest> notificationRequest) {
 }

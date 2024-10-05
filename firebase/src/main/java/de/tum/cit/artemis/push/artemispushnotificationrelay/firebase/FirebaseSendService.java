@@ -21,9 +21,9 @@ import java.util.Optional;
 @Service
 public class FirebaseSendService implements SendService<List<NotificationRequest>> {
 
-    private Optional<FirebaseApp> firebaseApp = Optional.empty();
+    private static final Logger log = LoggerFactory.getLogger(FirebaseSendService.class);
 
-    private final Logger log = LoggerFactory.getLogger(FirebaseSendService.class);
+    private Optional<FirebaseApp> firebaseApp = Optional.empty();
 
     public FirebaseSendService() {
         try {
@@ -52,9 +52,9 @@ public class FirebaseSendService implements SendService<List<NotificationRequest
                     .map((request) ->
                             Message
                                     .builder()
-                                    .putData("payload", request.getPayloadCipherText())
-                                    .putData("iv", request.getInitializationVector())
-                                    .setToken(request.getToken())
+                                    .putData("payload", request.payloadCipherText())
+                                    .putData("iv", request.initializationVector())
+                                    .setToken(request.token())
                                     .build()
                     )
                     .toList();

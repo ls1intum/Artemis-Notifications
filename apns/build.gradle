@@ -4,9 +4,13 @@ plugins {
     id 'io.spring.dependency-management'
 }
 
-group = 'de.tum.cit.artemis.push.artemispushnotificationrelay'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+group = 'de.tum.cit.aet.artemis.push.artemispushnotificationrelay'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 repositories {
     mavenCentral()
@@ -16,9 +20,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    implementation 'com.eatthepath:pushy:0.15.2'
+    implementation 'com.eatthepath:pushy:0.15.4'
 
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     implementation(project(":common"))
 }
