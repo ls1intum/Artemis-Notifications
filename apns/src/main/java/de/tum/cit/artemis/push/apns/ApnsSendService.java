@@ -5,6 +5,7 @@ import com.eatthepath.pushy.apns.util.SimpleApnsPayloadBuilder;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
 import com.eatthepath.pushy.apns.util.concurrent.PushNotificationFuture;
 import de.tum.cit.artemis.push.common.NotificationRequest;
+import de.tum.cit.artemis.push.common.PushNotificationApiType;
 import de.tum.cit.artemis.push.common.SendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,18 +65,28 @@ public class ApnsSendService implements SendService<NotificationRequest> {
     // TODO: either we send this async (in a separate bean), but then we cannot return the response entity, or we send it sync and block the thread (as we do it now)
     // @Async
     private ResponseEntity<Void> sendApnsRequest(NotificationRequest request) {
-        String payload = new SimpleApnsPayloadBuilder()
-                .setContentAvailable(true)
+        var payload = new SimpleApnsPayloadBuilder()
                 .addCustomProperty("iv", request.initializationVector())
-                .addCustomProperty("payload", request.payloadCipherText())
-                .build();
+                .addCustomProperty("payload", request.payloadCipherText());
+
+        var isV2Api = request.apiType() == PushNotificationApiType.IOS_V2;
+
+        if (isV2Api) {
+           payload.setMutableContent(true);
+           // Alert Body is a fallback in case we cannot decrypt the payload
+           payload.setAlertBody("There is a new notification in Artemis.");
+        } else {
+            payload.setContentAvailable(true);
+        }
+
+        var playloadString = payload.build();
 
         SimpleApnsPushNotification notification = new SimpleApnsPushNotification(request.token(),
                 "de.tum.cit.ase.artemis",
-                payload,
+                playloadString,
                 Instant.now().plus(Duration.ofDays(7)),
                 DeliveryPriority.getFromCode(5),
-                PushType.BACKGROUND);
+                isV2Api ? PushType.ALERT : PushType.BACKGROUND);
 
         PushNotificationFuture<SimpleApnsPushNotification, PushNotificationResponse<SimpleApnsPushNotification>> responsePushNotificationFuture = apnsClient.sendNotification(notification);
         try {
