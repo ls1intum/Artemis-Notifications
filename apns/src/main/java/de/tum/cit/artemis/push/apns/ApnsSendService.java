@@ -10,11 +10,12 @@ import de.tum.cit.artemis.push.common.SendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -37,8 +38,8 @@ public class ApnsSendService implements SendService<NotificationRequest> {
 
     private ApnsClient apnsClient;
 
-    @PostConstruct
-    public void initialize() {
+    @EventListener(ApplicationReadyEvent.class)
+    public void applicationReady() {
         log.info("apnsCertificatePwd: {}", apnsCertificatePwd);
         log.info("apnsCertificatePath: {}", apnsCertificatePath);
         log.info("apnsProdEnvironment: {}", apnsProdEnvironment);
