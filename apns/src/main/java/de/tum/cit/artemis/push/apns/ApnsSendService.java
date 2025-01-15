@@ -1,6 +1,7 @@
 package de.tum.cit.artemis.push.apns;
 
 import com.eatthepath.pushy.apns.*;
+import com.eatthepath.pushy.apns.server.RejectionReason;
 import com.eatthepath.pushy.apns.util.SimpleApnsPayloadBuilder;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
 import com.eatthepath.pushy.apns.util.concurrent.PushNotificationFuture;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -38,6 +40,8 @@ public class ApnsSendService implements SendService<NotificationRequest> {
 
     private ApnsClient apnsClient;
 
+    private boolean isConnected;
+    
     @EventListener(ApplicationReadyEvent.class)
     public void applicationReady() {
         log.info("apnsCertificatePwd: {}", apnsCertificatePwd);
@@ -52,8 +56,10 @@ public class ApnsSendService implements SendService<NotificationRequest> {
                     .setApnsServer(apnsProdEnvironment ? ApnsClientBuilder.PRODUCTION_APNS_HOST : ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
                     .setClientCredentials(new File(apnsCertificatePath), apnsCertificatePwd)
                     .build();
+            isConnected = true;
             log.info("Started APNS client successfully!");
         } catch (IOException e) {
+            isConnected = false;
             log.error("Could not init APNS service", e);
         }
     }
@@ -94,10 +100,14 @@ public class ApnsSendService implements SendService<NotificationRequest> {
             final PushNotificationResponse<SimpleApnsPushNotification> pushNotificationResponse = responsePushNotificationFuture.get();
             if (pushNotificationResponse.isAccepted()) {
                 log.info("Send notification to {}", request.token());
+                isConnected = true;
                 return ResponseEntity.ok().build();
             } else {
+                var rejectionReasons = List.of(RejectionReason.BAD_CERTIFICATE.toString(), RejectionReason.BAD_CERTIFICATE_ENVIRONMENT.toString());
+                if(pushNotificationResponse.getRejectionReason().isPresent() && rejectionReasons.contains(pushNotificationResponse.getRejectionReason().get())) {
+                    isConnected = false;
+                }
                 log.error("Notification rejected by the APNs gateway: {}", pushNotificationResponse.getRejectionReason());
-
                 pushNotificationResponse.getTokenInvalidationTimestamp().ifPresent(timestamp -> log.error("\t... and the token is invalid as of {}", timestamp));
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
             }
@@ -105,5 +115,10 @@ public class ApnsSendService implements SendService<NotificationRequest> {
             log.error("Failed to send push notification.", e);
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
         }
+    }
+
+    @Override
+    public boolean isHealthy() {
+        return isConnected;
     }
 }

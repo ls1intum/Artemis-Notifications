@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MessagingErrorCode;
 import de.tum.cit.artemis.push.common.NotificationRequest;
 import de.tum.cit.artemis.push.common.SendService;
 import org.slf4j.Logger;
@@ -25,6 +26,8 @@ public class FirebaseSendService implements SendService<List<NotificationRequest
 
     private Optional<FirebaseApp> firebaseApp = Optional.empty();
 
+    private boolean isConnected;
+
     public FirebaseSendService() {
         try {
             FirebaseOptions options = FirebaseOptions
@@ -34,8 +37,11 @@ public class FirebaseSendService implements SendService<List<NotificationRequest
                     .build();
 
             firebaseApp = Optional.of(FirebaseApp.initializeApp(options));
+
+            isConnected = true;
         } catch (IOException e) {
             log.error("Exception while loading Firebase credentials", e);
+            isConnected = false;
         }
     }
 
@@ -61,11 +67,24 @@ public class FirebaseSendService implements SendService<List<NotificationRequest
 
             try {
                 FirebaseMessaging.getInstance(firebaseApp.get()).sendEach(batch);
+                isConnected = true;
             } catch (FirebaseMessagingException e) {
+                // In case the certificate is invalid, the THIRD_PARTY_AUTH_ERROR error code will be returned
+                var errorCodes = List.of(MessagingErrorCode.THIRD_PARTY_AUTH_ERROR);
+
+                if(errorCodes.contains(e.getMessagingErrorCode())) {
+                    isConnected = false;
+                }
+
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
             }
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public boolean isHealthy() {
+        return isConnected;
     }
 }
